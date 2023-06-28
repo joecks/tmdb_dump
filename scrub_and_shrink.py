@@ -25,25 +25,31 @@ def scrub_chunks():
     keep = dict()
 
     for f in files:
-        with gzip.open(f, "r") as zip_ref:
-            movies = json.load(zip_ref)
-            for m in movies.keys():
-                dat = movies[m]
-                if ( not dat["adult"] and
-                    dat["vote_count"] > 5 and
-                    dat["budget"] > 1 and
-                    dat["original_language"] == "en" and
-                    dat["poster_path"] is not None and
-                    dat["runtime"] is not None and
-                    dat["runtime"] > 59 and
-                    dat["release_date"] 
-                    ):
-                    k = dat["id"]
-                    keep.update({k : dat})
+        if len(keep) < 1000000 :
+            with gzip.open(f, "r") as zip_ref:
+                movies = json.load(zip_ref)
+                for m in movies.keys():
+                    dat = movies[m]
+                    if (
+                        # not dat["adult"] and
+                        # (dat["vote_count"] or 0) > 5 and
+                        # (dat["budget"] or 0) > 1 and
+                        # dat["original_language"] == "en" and
+                        # dat["poster_path"] is not None and
+                        # dat["runtime"] is not None and
+                        # (dat["runtime"] or 0) > 30 and
+                        dat["release_date"] and
+                        dat["overview"] is not None and
+                        len(dat["overview"]) > 50
+                        ):
+                        k = dat["id"]
+                        # del dat["cast"]
+                        keep.update({k : dat})
     return keep
 
 if __name__ == "__main__":
     keep = scrub_chunks()
+    print(len(keep))
     filename = "tmdb_dump_" + str(date.today()) + ".json"
     with open(filename, "w") as f:
         json.dump(keep, f)
