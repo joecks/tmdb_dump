@@ -101,4 +101,5 @@ ENV/
 .mypy_cache/
 
 chunks_*
-dump.json 
+tmdb_dump_*.json 
+

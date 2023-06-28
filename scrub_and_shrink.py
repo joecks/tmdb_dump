@@ -3,6 +3,7 @@ import json
 import gzip
 
 from datetime import date
+import sys
 
 # this script requires the results of `tmdb.py`
 # it shrinks the results to a reasonable size for TLRE demos (~50,000),
@@ -12,13 +13,13 @@ from datetime import date
 #   don't have a poster,
 #   don't have any votes
 
-def scrub_chunks():
+def scrub_chunks(language):
     """Collate a list of chunk paths into a single dictionary
 
     Keyword arguments:
     files -- list of paths to g-zipped chunks from `tmdb.py`
     """
-    files = glob.glob('chunks/*')
+    files = glob.glob(f'chunks_{language}/*')
     if len(files) == 0 :
         raise SystemExit("No chunks found in `chunks/`. Did you run `tmdb.py` already?")
 
@@ -48,7 +49,12 @@ def scrub_chunks():
     return keep
 
 if __name__ == "__main__":
-    keep = scrub_chunks()
+    len_args = len(sys.argv)
+    if (len_args < 2):
+        print(f"language param needed! (i.e. python3 {sys.argv[0]} en-US)")
+        exit()
+    language = str(sys.argv[1])
+    keep = scrub_chunks(language)
     print(len(keep))
     filename = "tmdb_dump_" + str(date.today()) + ".json"
     with open(filename, "w") as f:
